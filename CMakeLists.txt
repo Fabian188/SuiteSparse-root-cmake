@@ -13,6 +13,7 @@ option(BUILD_CHOLMOD "sparse CHOLesky MODification package" ON)
 option(BUILD_UMFPACK "routines solving sparse linear systems via LU factorization" ON)
 
 option(ALLOW_64BIT_BLAS "look for 32-bit BLAS only or concurrent 32- and 64-bit BLAS" OFF)
+set(SUGGEST_BLAS_LIBRARIES "" CACHE STRING "override autodetection by suggeting lib(s) for BLAS_LIBRARIES")
 
 # this are the common arguments for all individual cmake projects
 set(CMAKE_ARGS
@@ -25,8 +26,12 @@ ExternalProject_Add(SuiteSparse_config
   PREFIX "SuiteSparse_config"
   SOURCE_DIR "${CMAKE_SOURCE_DIR}/SuiteSparse_config"
   BINARY_DIR "${CMAKE_SOURCE_DIR}/SuiteSparse_config/build"
+  INSTALL_COMMAND ""
   CMAKE_ARGS 
     ${CMAKE_ARGS} 
+    if(NOT SUGGEST_BLAS_LIBRARIES STREQUAL "")
+     -DBLAS_LIBRARIES=${SUGGEST_BLAS_LIBRARIES}
+    endif()
     -DALLOW_64BIT_BLAS=${ALLOW_64BIT_BLAS})
 
 if (BUILD_AMD OR BUILD_CHOLMOD OR BUILD_UMFPACK)
@@ -86,6 +91,9 @@ if (BUILD_CHOLMOD)
     DEPENDS SuiteSparse_config COLAMD CCOLAMD AMD
     CMAKE_ARGS 
       ${CMAKE_ARGS} 
+      if(NOT SUGGEST_BLAS_LIBRARIES STREQUAL "")
+       -DBLAS_LIBRARIES=${SUGGEST_BLAS_LIBRARIES}
+      endif()
       -DALLOW_64BIT_BLAS=${ALLOW_64BIT_BLAS} )
 endif()
 
@@ -97,6 +105,9 @@ if (BUILD_UMFPACK)
     DEPENDS SuiteSparse_config 
     CMAKE_ARGS 
       ${CMAKE_ARGS} 
+      if(NOT SUGGEST_BLAS_LIBRARIES STREQUAL "")
+       -DBLAS_LIBRARIES=${SUGGEST_BLAS_LIBRARIES}
+      endif()
       -DALLOW_64BIT_BLAS=${ALLOW_64BIT_BLAS} )
 endif ()
 
