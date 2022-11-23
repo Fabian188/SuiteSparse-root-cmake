@@ -6,16 +6,15 @@ include(CMakePrintHelpers) # cmake_print_variables()
 project (SuiteSparse LANGUAGES C )
 
 option(BUILD_STATIC "build static libraries" ON)
-option(BUILD_AMD "routines for pre-ordering sparse matrices prior to factorization" ON)
-option(BUILD_CAMD "routines for permuting sparse matrices prior to factorization" ON)
-option(BUILD_CCOLAMD "constrained column approximate minimum degree ordering" ON)
-option(BUILD_COLAMD "column approximate minimum degree ordering" ON)
-option(BUILD_CHOLMOD "sparse CHOLesky MODification package" ON)
-option(BUILD_UMFPACK "routines solving sparse linear systems via LU factorization" ON)
-
 option(ALLOW_64BIT_BLAS "look for 32-bit BLAS only or concurrent 32- and 64-bit BLAS" OFF)
 set(SUGGEST_BLAS_LIBRARIES "" CACHE STRING "override autodetection by suggeting lib(s) for BLAS_LIBRARIES")
 
+option(ENABLE_AMD "routines for pre-ordering sparse matrices prior to factorization" ON)
+option(ENABLE_CAMD "routines for permuting sparse matrices prior to factorization" ON)
+option(ENABLE_CCOLAMD "constrained column approximate minimum degree ordering" ON)
+option(ENABLE_COLAMD "column approximate minimum degree ordering" ON)
+option(ENABLE_CHOLMOD "sparse CHOLesky MODification package" ON)
+option(ENABLE_UMFPACK "routines solving sparse linear systems via LU factorization" ON)
 
 # this are the common arguments for all individual cmake projects
 set(CMAKE_ARGS
@@ -42,10 +41,10 @@ ExternalProject_Add(SuiteSparse_config
 # in ExternalProject_Add()
 set(INSTALL_LIST "${CMAKE_SOURCE_DIR}/SuiteSparse_config/build")
 
-if (BUILD_AMD OR BUILD_CHOLMOD OR BUILD_UMFPACK)
-  if (NOT BUILD_AMD)
-    message(FATAL_ERROR "enable BUILD_AMD, required by other package")
-    # unfortunately set(BUILD_AMD ON FORCE) is ignored :(
+if (ENABLE_AMD OR ENABLE_CHOLMOD OR ENABLE_UMFPACK)
+  if (NOT ENABLE_AMD)
+    message(FATAL_ERROR "enable ENABLE_AMD, required by other package")
+    # unfortunately set(ENABLE_AMD ON FORCE) is ignored :(
   endif()
   ExternalProject_Add(AMD
     PREFIX "AMD"
@@ -57,9 +56,9 @@ if (BUILD_AMD OR BUILD_CHOLMOD OR BUILD_UMFPACK)
   set(INSTALL_LIST ${INSTALL_LIST} "${CMAKE_SOURCE_DIR}/AMD/build")   
 endif()
 
-if (BUILD_CAMD OR BUILD_CHOLMOD)
-  if (NOT BUILD_CAMD)
-    message(FATAL_ERROR "enable BUILD_CAMD, required by CHOLMOD")
+if (ENABLE_CAMD OR ENABLE_CHOLMOD)
+  if (NOT ENABLE_CAMD)
+    message(FATAL_ERROR "enable ENABLE_CAMD, required by CHOLMOD")
   endif()
   ExternalProject_Add(CAMD
     PREFIX "CAMD"
@@ -71,9 +70,9 @@ if (BUILD_CAMD OR BUILD_CHOLMOD)
   set(INSTALL_LIST ${INSTALL_LIST} "${CMAKE_SOURCE_DIR}/CAMD/build")    
 endif()
 
-if (BUILD_CCOLAMD OR BUILD_CHOLMOD)
-  if (NOT BUILD_CCOLAMD)
-    message(FATAL_ERROR "enable BUILD_CCOLAMD, required by CHOLMOD")
+if (ENABLE_CCOLAMD OR ENABLE_CHOLMOD)
+  if (NOT ENABLE_CCOLAMD)
+    message(FATAL_ERROR "enable ENABLE_CCOLAMD, required by CHOLMOD")
   endif()
   ExternalProject_Add(CCOLAMD
     PREFIX "CCOLAMD"
@@ -85,9 +84,9 @@ if (BUILD_CCOLAMD OR BUILD_CHOLMOD)
   set(INSTALL_LIST ${INSTALL_LIST} "${CMAKE_SOURCE_DIR}/CCOLAMD/build")    
 endif()
 
-if (BUILD_COLAMD OR BUILD_CHOLMOD)
-  if (NOT BUILD_COLAMD)
-    message(FATAL_ERROR "enable BUILD_COLAMD, required by CHOLMOD")
+if (ENABLE_COLAMD OR ENABLE_CHOLMOD)
+  if (NOT ENABLE_COLAMD)
+    message(FATAL_ERROR "enable ENABLE_COLAMD, required by CHOLMOD")
   endif()
   ExternalProject_Add(COLAMD
     PREFIX "COLAMD"
@@ -99,7 +98,7 @@ if (BUILD_COLAMD OR BUILD_CHOLMOD)
   set(INSTALL_LIST ${INSTALL_LIST} "${CMAKE_SOURCE_DIR}/COLAMD/build")    
 endif()
 
-if (BUILD_CHOLMOD)
+if (ENABLE_CHOLMOD)
   ExternalProject_Add(CHOLMOD
     PREFIX "CHOLMOD"
     SOURCE_DIR "${CMAKE_SOURCE_DIR}/CHOLMOD"
@@ -115,7 +114,7 @@ if (BUILD_CHOLMOD)
   set(INSTALL_LIST ${INSTALL_LIST} "${CMAKE_SOURCE_DIR}/CHOLMOD/build")    
 endif()
 
-if (BUILD_UMFPACK)
+if (ENABLE_UMFPACK)
   ExternalProject_Add(UMFPACK
     PREFIX "UMFPACK"
     SOURCE_DIR "${CMAKE_SOURCE_DIR}/UMFPACK"
@@ -131,6 +130,6 @@ if (BUILD_UMFPACK)
   set(INSTALL_LIST ${INSTALL_LIST} "${CMAKE_SOURCE_DIR}/UMFPACK/build")      
 endif()
 
-# generate suitsparse_install.cmake form root make install
+# generate suitsparse_install.cmake for root make install
 configure_file("${CMAKE_SOURCE_DIR}/suitesparse_install.cmake.in" "${CMAKE_BINARY_DIR}/suitesparse_install.cmake" @ONLY)
 install(SCRIPT "${CMAKE_BINARY_DIR}/suitesparse_install.cmake")
