@@ -6,6 +6,8 @@ include(CMakePrintHelpers) # cmake_print_variables()
 project (SuiteSparse LANGUAGES C )
 
 option(BUILD_STATIC "build static libraries" ON)
+# inspired by https://github.com/sergiud/SuiteSparse
+option(ALLOW_GPL_EXTENSIONS "let the solvers use optional GPL features" ON)
 option(ALLOW_64BIT_BLAS "look for 32-bit BLAS only or concurrent 32- and 64-bit BLAS" OFF)
 set(SUGGEST_BLAS_LIBRARIES "" CACHE STRING "override autodetection by suggeting lib(s) for BLAS_LIBRARIES")
 
@@ -108,7 +110,12 @@ if (ENABLE_CHOLMOD)
     CMAKE_ARGS 
       ${CMAKE_ARGS} 
       if(NOT SUGGEST_BLAS_LIBRARIES STREQUAL "")
-       -DBLAS_LIBRARIES=${SUGGEST_BLAS_LIBRARIES}
+        -DBLAS_LIBRARIES=${SUGGEST_BLAS_LIBRARIES}
+      endif()
+      if(NOT ALLOW_GPL_EXTENSIONS)
+        -DNMATRIXOPS:BOOL=ON
+        -DNMODIFY:BOOL=ON 
+        -DNSUPERNODAL:BOOL=ON
       endif()
       -DALLOW_64BIT_BLAS=${ALLOW_64BIT_BLAS} )
   set(INSTALL_LIST ${INSTALL_LIST} "${CMAKE_SOURCE_DIR}/CHOLMOD/build")    

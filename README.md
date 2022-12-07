@@ -1,17 +1,22 @@
 ----------------------
 SuiteSparse-root-cmake
 ----------------------
-This project is forked from DrTimothyAldenDavis/SuiteSparse 
-The original README.md follows below.
+This project is forked from DrTimothyAldenDavis/SuiteSparse
+https://github.com/DrTimothyAldenDavis/SuiteSparse
+The original README.md follows below. 
 
-This fork, based on SuiteSparse version 6.0, adds a root CMakeLists.txt and 
-possibly minor extension in the SuiteSparse CMake files.
+Home of this fork is https://github.com/Fabian188/SuiteSparse-root-cmake
+
+This fork, based on SuiteSparse version 6.0, adds a root CMakeLists.txt 
 
 The purpose of this fork is that it's contributions get integrated upstream
 such that his fork can be deleted. It is therefore not the intention to have
 everything fully complete to give Tim David more freedom of design.
 
 I'm not a CMake guru, any suggestions or discussions are welcome.
+
+Probably the SuiteSparse-cmake fork of Sergiu Deitsch is more suitable for you:
+https://github.com/sergiud/SuiteSparse
 
 Fabian Wein
 
