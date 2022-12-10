@@ -23,19 +23,24 @@ set(CMAKE_ARGS
   -DNSTATIC:BOOL=(NOT BUILD_STATIC) 
   -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX})
 
+# overwriting these values is actually wrong, as the first find( BLAS x) is true
+if(NOT SUGGEST_BLAS_LIBRARIES STREQUAL "")
+  set(BLAS_LIB -DBLAS_LIBRARIES=${SUGGEST_BLAS_LIBRARIES} -DLAPACK_LIBRARIES=${SUGGEST_BLAS_LIBRARIES})
+endif()
+
+
 # the CMAKE_SOURCE_DIR points to the root directory, independent from where it's CMakeLists.txt is called
 # the add the desired subpackages. Via DEPENDS the proper order is guaranteed
+set(ARGS ${CMAKE_ARGS})
+if(NOT SUGGEST_BLAS_LIBRARIES STREQUAL "")
+  list(APPEND ARGS ${BLAS_LIB})
+endif()
 ExternalProject_Add(SuiteSparse_config
   PREFIX "SuiteSparse_config"
   SOURCE_DIR "${CMAKE_SOURCE_DIR}/SuiteSparse_config"
   BINARY_DIR "${CMAKE_SOURCE_DIR}/SuiteSparse_config/build"
   INSTALL_COMMAND "" # we disable instant install and perform install later via INSTALL_LIST 
-  CMAKE_ARGS 
-    ${CMAKE_ARGS} 
-    if(NOT SUGGEST_BLAS_LIBRARIES STREQUAL "")
-     -DBLAS_LIBRARIES=${SUGGEST_BLAS_LIBRARIES}
-    endif()
-    -DALLOW_64BIT_BLAS=${ALLOW_64BIT_BLAS})
+  CMAKE_ARGS ${ARGS} -DALLOW_64BIT_BLAS=${ALLOW_64BIT_BLAS})
 
 # here we collect install targets. Via INSTALL_COMMAND "" in the ExternalProject_Add() we prevent
 # instant installation. Via this list a make install install in the build directory performes this
@@ -101,39 +106,36 @@ if (ENABLE_COLAMD OR ENABLE_CHOLMOD)
 endif()
 
 if (ENABLE_CHOLMOD)
+  set(ARGS ${CMAKE_ARGS})
+  if(NOT SUGGEST_BLAS_LIBRARIES STREQUAL "")
+    list(APPEND ARGS ${BLAS_LIB})
+  endif()
+  if(NOT ALLOW_GPL_EXTENSIONS) # switch off gpl features
+    list(APPEND ARGS -DNMATRIXOPS:BOOL=ON -DNMODIFY:BOOL=ON -DNSUPERNODAL:BOOL=ON)
+  endif()
   ExternalProject_Add(CHOLMOD
     PREFIX "CHOLMOD"
     SOURCE_DIR "${CMAKE_SOURCE_DIR}/CHOLMOD"
     BINARY_DIR "${CMAKE_SOURCE_DIR}/CHOLMOD/build"
     DEPENDS SuiteSparse_config COLAMD CCOLAMD AMD
     INSTALL_COMMAND ""    
-    CMAKE_ARGS 
-      ${CMAKE_ARGS} 
-      if(NOT SUGGEST_BLAS_LIBRARIES STREQUAL "")
-        -DBLAS_LIBRARIES=${SUGGEST_BLAS_LIBRARIES}
-      endif()
-      if(NOT ALLOW_GPL_EXTENSIONS)
-        -DNMATRIXOPS:BOOL=ON
-        -DNMODIFY:BOOL=ON 
-        -DNSUPERNODAL:BOOL=ON
-      endif()
-      -DALLOW_64BIT_BLAS=${ALLOW_64BIT_BLAS} )
+    CMAKE_ARGS ${ARGS} -DALLOW_64BIT_BLAS=${ALLOW_64BIT_BLAS} )
   set(INSTALL_LIST ${INSTALL_LIST} "${CMAKE_SOURCE_DIR}/CHOLMOD/build")    
 endif()
 
 if (ENABLE_UMFPACK)
+  set(ARGS ${CMAKE_ARGS})
+  if(NOT SUGGEST_BLAS_LIBRARIES STREQUAL "")
+    list(APPEND ARGS ${BLAS_LIB})
+  endif()
+
   ExternalProject_Add(UMFPACK
     PREFIX "UMFPACK"
     SOURCE_DIR "${CMAKE_SOURCE_DIR}/UMFPACK"
     BINARY_DIR "${CMAKE_SOURCE_DIR}/UMFPACK/build"
     DEPENDS SuiteSparse_config 
     INSTALL_COMMAND ""    
-    CMAKE_ARGS 
-      ${CMAKE_ARGS} 
-      if(NOT SUGGEST_BLAS_LIBRARIES STREQUAL "")
-       -DBLAS_LIBRARIES=${SUGGEST_BLAS_LIBRARIES}
-      endif()
-      -DALLOW_64BIT_BLAS=${ALLOW_64BIT_BLAS} )
+    CMAKE_ARGS ${ARGS} -DALLOW_64BIT_BLAS=${ALLOW_64BIT_BLAS} )
   set(INSTALL_LIST ${INSTALL_LIST} "${CMAKE_SOURCE_DIR}/UMFPACK/build")      
 endif()
 
