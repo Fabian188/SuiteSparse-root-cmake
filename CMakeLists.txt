@@ -19,9 +19,12 @@ option(ENABLE_CHOLMOD "sparse CHOLesky MODification package" ON)
 option(ENABLE_UMFPACK "routines solving sparse linear systems via LU factorization" ON)
 
 # this are the common arguments for all individual cmake projects
-set(CMAKE_ARGS
-  -DNSTATIC:BOOL=(NOT BUILD_STATIC) 
-  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX})
+set(CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX})
+if(BUILD_STATIC)
+  list(APPEND CMAKE_ARGS -DNSTATIC:BOOL=OFF)
+else()
+  list(APPEND CMAKE_ARGS -DNSTATIC:BOOL=ON)
+endif()
 
 # overwriting these values is actually wrong, as the first find( BLAS x) is true
 if(NOT SUGGEST_BLAS_LIBRARIES STREQUAL "")
