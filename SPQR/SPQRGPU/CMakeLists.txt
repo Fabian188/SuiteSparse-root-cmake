@@ -51,7 +51,13 @@ add_library ( spqr_cuda_static STATIC ${SPQR_CUDA_SOURCES} )
 set_target_properties ( spqr_cuda_static PROPERTIES
     VERSION ${SPQR_VERSION_MAJOR}.${SPQR_VERSION_MINOR}.${SPQR_VERSION_SUB}
     CXX_STANDARD_REQUIRED 17
+    OUTPUT_NAME spqr_cuda
     SOVERSION ${SPQR_VERSION_MAJOR} )
+
+if ( MSVC )
+    set_target_properties ( spqr_cuda_static PROPERTIES
+        OUTPUT_NAME spqr_cuda_static )
+endif ( )
 
 set ( SPQR_CUDA_INCLUDES
         ../../GPUQREngine/Include
@@ -87,24 +93,9 @@ endif ( )
 # installation location
 #-------------------------------------------------------------------------------
 
-if ( GLOBAL_INSTALL )
-    # install in /usr/local/lib and /usr/local/include.
-    # requires "sudo make install"
-    message ( STATUS "Installation will be system-wide (requires 'sudo make install')" )
-    install ( TARGETS spqr_cuda
-        LIBRARY       DESTINATION ${CMAKE_INSTALL_LIBDIR} )
-    install ( TARGETS spqr_cuda_static
-        ARCHIVE       DESTINATION ${CMAKE_INSTALL_LIBDIR} )
-endif ( )
-
-if ( INSIDE_SUITESPARSE )
-    # also install in SuiteSparse/lib and SuiteSparse/include;
-    # does not require "sudo make install", just "make install"
-    message ( STATUS "Installation in ../../lib and ../../include," )
-    message ( STATUS "  with 'make local ; make install'. No 'sudo' required." )
-    install ( TARGETS spqr_cuda
-        LIBRARY       DESTINATION ${SUITESPARSE_LIBDIR} )
-    install ( TARGETS spqr_cuda_static
-        ARCHIVE       DESTINATION ${SUITESPARSE_LIBDIR} )
-endif ( )
-
+install ( TARGETS spqr_cuda
+    LIBRARY DESTINATION ${SUITESPARSE_LIBDIR}
+    ARCHIVE DESTINATION ${SUITESPARSE_LIBDIR}
+    RUNTIME DESTINATION ${SUITESPARSE_BINDIR} )
+install ( TARGETS spqr_cuda_static
+    ARCHIVE DESTINATION ${SUITESPARSE_LIBDIR} )

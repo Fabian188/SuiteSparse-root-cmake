@@ -87,29 +87,6 @@ global:
 	( cd GraphBLAS && $(MAKE) global )
 	( cd SPEX && $(MAKE) global )
 
-# compile; "sudo make install" will install only in /usr/local
-# (or whatever your CMAKE_INSTALL_PREFIX is)
-both:
-	( cd SuiteSparse_config && $(MAKE) both )
-	( cd Mongoose && $(MAKE) both )
-	( cd AMD && $(MAKE) both )
-	( cd BTF && $(MAKE) both )
-	( cd CAMD && $(MAKE) both )
-	( cd CCOLAMD && $(MAKE) both )
-	( cd COLAMD && $(MAKE) both )
-	( cd CHOLMOD && $(MAKE) both )
-	( cd CSparse && $(MAKE) )  # CSparse is compiled but not installed
-	( cd CXSparse && $(MAKE) both )
-	( cd LDL && $(MAKE) both )
-	( cd KLU && $(MAKE) both )
-	( cd UMFPACK && $(MAKE) both )
-	( cd RBio && $(MAKE) both )
-	( cd SuiteSparse_GPURuntime && $(MAKE) both )
-	( cd GPUQREngine && $(MAKE) both )
-	( cd SPQR && $(MAKE) both )
-	( cd GraphBLAS && $(MAKE) both )
-	( cd SPEX && $(MAKE) both )
-
 # install all packages.  Location depends on prior "make", "make global" etc
 install:
 	( cd SuiteSparse_config && $(MAKE) install )
@@ -205,7 +182,7 @@ demos:
 # Create the PDF documentation
 docs:
 	( cd GraphBLAS && $(MAKE) docs )
-#	( cd Mongoose  && $(MAKE) docs )
+	( cd Mongoose  && $(MAKE) docs )
 	( cd AMD && $(MAKE) docs )
 	( cd CAMD && $(MAKE) docs )
 	( cd KLU && $(MAKE) docs )
@@ -230,4 +207,25 @@ gbmatlab:
 
 gblocal:
 	( cd GraphBLAS/GraphBLAS && $(MAKE) local && $(MAKE) install )
+
+debug:
+	( cd SuiteSparse_config && $(MAKE) debug )
+	# ( cd Mongoose && $(MAKE) debug )
+	( cd AMD && $(MAKE) debug )
+	( cd BTF && $(MAKE) debug )
+	( cd CAMD && $(MAKE) debug )
+	( cd CCOLAMD && $(MAKE) debug )
+	( cd COLAMD && $(MAKE) debug )
+	( cd CHOLMOD && $(MAKE) debug )
+	( cd CSparse && $(MAKE) debug )
+	( cd CXSparse && $(MAKE) debug )
+	( cd LDL && $(MAKE) debug )
+	( cd KLU && $(MAKE) debug )
+	( cd UMFPACK && $(MAKE) debug )
+	( cd RBio && $(MAKE) debug )
+	( cd SuiteSparse_GPURuntime && $(MAKE) )
+	( cd GPUQREngine && $(MAKE) )
+	( cd SPQR && $(MAKE) debug )
+	( cd GraphBLAS && $(MAKE) debug )
+	( cd SPEX && $(MAKE) debug )
 

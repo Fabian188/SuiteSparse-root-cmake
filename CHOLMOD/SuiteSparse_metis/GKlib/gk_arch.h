@@ -14,6 +14,7 @@
 * Architecture-specific differences in header files
 **************************************************************************/
 
+// stdint.h, inttypes.h: added for SuiteSparse, Dec 2022
 #include <stdint.h>
 #include <inttypes.h>
 
@@ -55,8 +56,13 @@
 /*************************************************************************
 * Architecture-specific modifications
 **************************************************************************/
-#ifdef WIN32
+// revised for SuiteSparse, Jan 2023
+#if defined ( NO_SSIZE_T )
+// #ifdef WIN32
 typedef ptrdiff_t ssize_t;
+#else
+// POSIX: ssize_t is defined in sys/types.h
+#include <sys/types.h>
 #endif
 
 
@@ -65,6 +71,7 @@ typedef ptrdiff_t ssize_t;
 #endif
 
 #if 0
+// rint and INFINITY disabled for SuiteSparse, Dec 2022
 #ifdef __MSC__
 /* MSC does not have rint() function */
 #define rint(x) ((int)((x)+0.5))  

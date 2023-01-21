@@ -39,15 +39,11 @@ library:
 
 # install only in SuiteSparse/lib and SuiteSparse/include
 local:
-	( cd build && cmake $(CMAKE_OPTIONS) -DGLOBAL_INSTALL=0 -DLOCAL_INSTALL=1 .. && cmake --build . -j${JOBS} )
+	( cd build && cmake $(CMAKE_OPTIONS) -DLOCAL_INSTALL=1 .. && cmake --build . -j${JOBS} )
 
 # install only in /usr/local (default)
 global:
-	( cd build && cmake $(CMAKE_OPTIONS) -DGLOBAL_INSTALL=1 -DLOCAL_INSTALL=0 .. && cmake --build . -j${JOBS} )
-
-# install in SuiteSparse/lib both and SuiteSparse/include and /usr/local
-both:
-	( cd build && cmake $(CMAKE_OPTIONS) -DGLOBAL_INSTALL=1 -DLOCAL_INSTALL=1 .. && cmake --build . -j${JOBS} )
+	( cd build && cmake $(CMAKE_OPTIONS) -DLOCAL_INSTALL=0 .. && cmake --build . -j${JOBS} )
 
 debug:
 	( cd build && cmake $(CMAKE_OPTIONS) -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . -j${JOBS} )
@@ -57,17 +53,17 @@ all: library
 demos: library
 	( cd build && cmake $(CMAKE_OPTIONS) -DDEMO=1 .. && cmake --build . -j${JOBS} )
 	./build/ldlsimple > ./build/ldlsimple.out
-	- diff ./Demo/ldlsimple.out ./build/ldlsimple.out
+	- diff --strip-trailing-cr ./Demo/ldlsimple.out ./build/ldlsimple.out
 	./build/ldllsimple > ./build/ldllsimple.out
-	- diff ./Demo/ldllsimple.out ./build/ldllsimple.out
+	- diff --strip-trailing-cr ./Demo/ldllsimple.out ./build/ldllsimple.out
 	./build/ldlmain > ./build/ldlmain.out
-	- diff ./Demo/ldlmain.out ./build/ldlmain.out
+	- diff --strip-trailing-cr ./Demo/ldlmain.out ./build/ldlmain.out
 	./build/ldllmain > ./build/ldllmain.out
-	- diff ./Demo/ldllmain.out ./build/ldllmain.out
+	- diff --strip-trailing-cr ./Demo/ldllmain.out ./build/ldllmain.out
 	./build/ldlamd  > ./build/ldlamd.out
-	- diff ./Demo/ldlamd.out  ./build/ldlamd.out
+	- diff --strip-trailing-cr ./Demo/ldlamd.out  ./build/ldlamd.out
 	./build/ldllamd  > ./build/ldllamd.out
-	- diff ./Demo/ldllamd.out  ./build/ldllamd.out
+	- diff --strip-trailing-cr ./Demo/ldllamd.out  ./build/ldllamd.out
 
 # just compile after running cmake; do not run cmake again
 remake:

@@ -15,12 +15,10 @@
 
 cmake_minimum_required ( VERSION 3.19 )
 
-# date version must match ../CMakeLists.txt:
-# version of SuiteSparse:GraphBLAS
-set ( GraphBLAS_DATE "Dec 23, 2022" )
-set ( GraphBLAS_VERSION_MAJOR 7 )
-set ( GraphBLAS_VERSION_MINOR 4 )
-set ( GraphBLAS_VERSION_SUB   0 )
+set ( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+    ${CMAKE_SOURCE_DIR}/../cmake_modules )
+
+include ( GraphBLAS_version )
 
 message ( STATUS "Building SuiteSparse:GraphBLAS version: v"
     ${GraphBLAS_VERSION_MAJOR}.${GraphBLAS_VERSION_MINOR}.${GraphBLAS_VERSION_SUB}
@@ -35,13 +33,6 @@ set ( GraphBLAS_API_VERSION_SUB   0 )
 #-------------------------------------------------------------------------------
 # SuiteSparse policies
 #-------------------------------------------------------------------------------
-
-set ( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
-    ${CMAKE_SOURCE_DIR}/cmake_modules
-    ${CMAKE_SOURCE_DIR}/../cmake_modules
-    ${CMAKE_SOURCE_DIR}/../../SuiteSparse_config/cmake_modules
-    ${CMAKE_SOURCE_DIR}/../../SuiteSparse/SuiteSparse_config/cmake_modules
-    )
 
 set ( SUITESPARSE_SECOND_LEVEL true )
 include ( SuiteSparsePolicy )
@@ -126,8 +117,8 @@ else ( )
     message ( STATUS "CMAKE C Flags release:     " ${CMAKE_C_FLAGS_RELEASE} )
 endif ( )
 
-message ( STATUS "CMAKE compiler ID:         " ${CMAKE_C_COMPILER_ID} )
-message ( STATUS "CMAKE have OpenMP:         " ${OPENMP_FOUND} )
+message ( STATUS "C compiler:                 ${CMAKE_C_COMPILER} ")
+message ( STATUS "CMAKE have OpenMP:          ${OPENMP_FOUND}" )
 
 #-------------------------------------------------------------------------------
 # include directories
@@ -233,13 +224,10 @@ endif ( )
 # select the math library (not required for Microsoft Visual Studio)
 #-------------------------------------------------------------------------------
 
-if ( "${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC" )
-    set ( M_LIB "" )
-else ( )
-    set ( M_LIB "m" )
+# libm:
+if ( NOT WIN32 )
+    target_link_libraries ( graphblas_matlab PUBLIC m )
 endif ( )
-
-target_link_libraries ( graphblas_matlab PUBLIC ${M_LIB} )
 
 include ( SuiteSparseAtomic )
 if ( LIBATOMIC_REQUIRED )
@@ -288,26 +276,8 @@ message ( STATUS "CMAKE C flags: " ${CMAKE_C_FLAGS} )
 # installation location
 #-------------------------------------------------------------------------------
 
-if ( GLOBAL_INSTALL )
-    # install in /usr/local/lib and /usr/local/include.
-    # requires "sudo make install"
-    message ( STATUS "Installation will be system-wide (requires 'sudo make install')" )
-    message ( STATUS "System install libdir: ${CMAKE_INSTALL_LIBDIR}" )
-    message ( STATUS "System install incdir: ${CMAKE_INSTALL_INCLUDEDIR}" )
-    install ( TARGETS graphblas_matlab
-        LIBRARY       DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} )
-endif ( )
-
-if ( INSIDE_SUITESPARSE )
-    # also install in SuiteSparse/lib and SuiteSparse/include;
-    # does not require "sudo make install", just "make install"
-    message ( STATUS "Installation in ../../lib and ../../include," )
-    message ( STATUS "  with 'make local ; make install'. No 'sudo' required." )
-    message ( STATUS "Local  install libdir: ${SUITESPARSE_LIBDIR}" )
-    message ( STATUS "Local  install incdir: ${SUITESPARSE_INCLUDEDIR}" )
-    install ( TARGETS graphblas_matlab
-        LIBRARY       DESTINATION ${SUITESPARSE_LIBDIR}
-        PUBLIC_HEADER DESTINATION ${SUITESPARSE_INCLUDEDIR} )
-endif ( )
-
+install ( TARGETS graphblas_matlab
+    LIBRARY DESTINATION ${SUITESPARSE_LIBDIR}
+    ARCHIVE DESTINATION ${SUITESPARSE_LIBDIR}
+    RUNTIME DESTINATION ${SUITESPARSE_BINDIR}
+    PUBLIC_HEADER DESTINATION ${SUITESPARSE_INCLUDEDIR} )

@@ -40,15 +40,11 @@ library:
 
 # install only in SuiteSparse/lib and SuiteSparse/include
 local:
-	( cd build && cmake $(CMAKE_OPTIONS) -DGLOBAL_INSTALL=0 -DLOCAL_INSTALL=1 .. && cmake --build . -j${JOBS} )
+	( cd build && cmake $(CMAKE_OPTIONS) -DLOCAL_INSTALL=1 .. && cmake --build . -j${JOBS} )
 
 # install only in /usr/local (default)
 global:
-	( cd build && cmake $(CMAKE_OPTIONS) -DGLOBAL_INSTALL=1 -DLOCAL_INSTALL=0 .. && cmake --build . -j${JOBS} )
-
-# install in SuiteSparse/lib both and SuiteSparse/include and /usr/local
-both:
-	( cd build && cmake $(CMAKE_OPTIONS) -DGLOBAL_INSTALL=1 -DLOCAL_INSTALL=1 .. && cmake --build . -j${JOBS} )
+	( cd build && cmake $(CMAKE_OPTIONS) -DLOCAL_INSTALL=0 .. && cmake --build . -j${JOBS} )
 
 debug:
 	( cd build && cmake $(CMAKE_OPTIONS) -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . -j${JOBS} )
@@ -58,13 +54,13 @@ all: library
 demos: library
 	( cd build && cmake $(CMAKE_OPTIONS) -DDEMO=1 .. && cmake --build . -j${JOBS} )
 	./build/camd_demo > build/camd_demo.out
-	- diff Demo/camd_demo.out build/camd_demo.out
+	- diff --strip-trailing-cr Demo/camd_demo.out build/camd_demo.out
 	./build/camd_l_demo > build/camd_l_demo.out
-	- diff Demo/camd_l_demo.out build/camd_l_demo.out
+	- diff --strip-trailing-cr Demo/camd_l_demo.out build/camd_l_demo.out
 	./build/camd_demo2 > build/camd_demo2.out
-	- diff Demo/camd_demo2.out build/camd_demo2.out
+	- diff --strip-trailing-cr Demo/camd_demo2.out build/camd_demo2.out
 	./build/camd_simple > build/camd_simple.out
-	- diff Demo/camd_simple.out build/camd_simple.out
+	- diff --strip-trailing-cr Demo/camd_simple.out build/camd_simple.out
 
 # just compile after running cmake&& do not run cmake again
 remake:

@@ -11,10 +11,10 @@
 
 cmake_minimum_required ( VERSION 3.19 )
 
-set ( RBIO_DATE "Dec 9, 2022" )
+set ( RBIO_DATE "Jan 17, 2023" )
 set ( RBIO_VERSION_MAJOR 3 )
 set ( RBIO_VERSION_MINOR 0 )
-set ( RBIO_VERSION_SUB   2 )
+set ( RBIO_VERSION_SUB   3 )
 
 message ( STATUS "Building RBIO version: v"
     ${RBIO_VERSION_MAJOR}.
@@ -43,13 +43,15 @@ project ( rbio
 # find library dependencies
 #-------------------------------------------------------------------------------
 
-find_package ( SuiteSparse_config 6.0.2 REQUIRED )
+find_package ( SuiteSparse_config 7.0.0 REQUIRED )
 
 #-------------------------------------------------------------------------------
 # configure files
 #-------------------------------------------------------------------------------
 
-configure_file ( "Config/RBio.h.in" "${PROJECT_SOURCE_DIR}/Include/RBio.h")
+configure_file ( "Config/RBio.h.in"
+    "${PROJECT_SOURCE_DIR}/Include/RBio.h"
+    NEWLINE_STYLE LF )
 
 #-------------------------------------------------------------------------------
 # include directories
@@ -69,20 +71,26 @@ set_target_properties ( rbio PROPERTIES
     VERSION ${RBIO_VERSION_MAJOR}.${RBIO_VERSION_MINOR}.${RBIO_VERSION_SUB}
     C_STANDARD_REQUIRED 11
     SOVERSION ${RBIO_VERSION_MAJOR}
-    PUBLIC_HEADER "Include/RBio.h" )
+    PUBLIC_HEADER "Include/RBio.h"
+    WINDOWS_EXPORT_ALL_SYMBOLS ON )
 
 #-------------------------------------------------------------------------------
 # static rbio library properties
 #-------------------------------------------------------------------------------
 
 if ( NOT NSTATIC )
-add_library ( rbio_static STATIC ${RBIO_SOURCES} )
+    add_library ( rbio_static STATIC ${RBIO_SOURCES} )
 
-set_target_properties ( rbio_static PROPERTIES
-    VERSION ${RBIO_VERSION_MAJOR}.${RBIO_VERSION_MINOR}.${RBIO_VERSION_SUB}
-    C_STANDARD_REQUIRED 11
-    OUTPUT_NAME rbio
-    SOVERSION ${RBIO_VERSION_MAJOR} )
+    set_target_properties ( rbio_static PROPERTIES
+        VERSION ${RBIO_VERSION_MAJOR}.${RBIO_VERSION_MINOR}.${RBIO_VERSION_SUB}
+        C_STANDARD_REQUIRED 11
+        OUTPUT_NAME rbio
+        SOVERSION ${RBIO_VERSION_MAJOR} )
+
+    if ( MSVC )
+        set_target_properties ( rbio_static PROPERTIES
+            OUTPUT_NAME rbio_static )
+    endif ( )
 endif ( )
 
 #-------------------------------------------------------------------------------
@@ -92,14 +100,14 @@ endif ( )
 # suitesparseconfig:
 target_link_libraries ( rbio PUBLIC ${SUITESPARSE_CONFIG_LIBRARIES} )
 if ( NOT NSTATIC )
-target_link_libraries ( rbio_static PUBLIC ${SUITESPARSE_CONFIG_LIBRARIES} )
+    target_link_libraries ( rbio_static PUBLIC ${SUITESPARSE_CONFIG_STATIC} )
 endif ( )
 
 # libm:
-if ( NOT MSVC )
+if ( NOT WIN32 )
     target_link_libraries ( rbio PUBLIC m )
     if ( NOT NSTATIC )
-    target_link_libraries ( rbio_static PUBLIC m )
+        target_link_libraries ( rbio_static PUBLIC m )
     endif ( )
 endif ( )
 
@@ -107,37 +115,17 @@ endif ( )
 # RBIO installation location
 #-------------------------------------------------------------------------------
 
-if ( GLOBAL_INSTALL )
-    # install in /usr/local/lib and /usr/local/include.
-    # requires "sudo make install"
-    message ( STATUS "Installation will be system-wide (requires 'sudo make install')" )
-    install ( TARGETS rbio
-        LIBRARY       DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} )
-    install ( FILES ${CMAKE_SOURCE_DIR}/cmake_modules/FindRBio.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/SuiteSparse 
-        COMPONENT Development )
-    if ( NOT NSTATIC )
+install ( TARGETS rbio
+    LIBRARY DESTINATION ${SUITESPARSE_LIBDIR}
+    ARCHIVE DESTINATION ${SUITESPARSE_LIBDIR}
+    RUNTIME DESTINATION ${SUITESPARSE_BINDIR}
+    PUBLIC_HEADER DESTINATION ${SUITESPARSE_INCLUDEDIR} )
+install ( FILES ${CMAKE_SOURCE_DIR}/cmake_modules/FindRBio.cmake
+    DESTINATION ${SUITESPARSE_LIBDIR}/cmake/SuiteSparse 
+    COMPONENT Development )
+if ( NOT NSTATIC )
     install ( TARGETS rbio_static
-        ARCHIVE       DESTINATION ${CMAKE_INSTALL_LIBDIR} )
-    endif ( )
-endif ( )
-
-if ( INSIDE_SUITESPARSE )
-    # also install in SuiteSparse/lib and SuiteSparse/include;
-    # does not require "sudo make install", just "make install"
-    message ( STATUS "Installation in ../lib and ../include," )
-    message ( STATUS "  with 'make local ; make install'. No 'sudo' required." )
-    install ( TARGETS rbio
-        LIBRARY       DESTINATION ${SUITESPARSE_LIBDIR}
-        PUBLIC_HEADER DESTINATION ${SUITESPARSE_INCLUDEDIR} )
-    install ( FILES ${CMAKE_SOURCE_DIR}/cmake_modules/FindRBio.cmake
-        DESTINATION ${SUITESPARSE_LIBDIR}/cmake/SuiteSparse 
-        COMPONENT Development )
-    if ( NOT NSTATIC )
-    install ( TARGETS rbio_static
-        ARCHIVE       DESTINATION ${SUITESPARSE_LIBDIR} )
-    endif ( )
+        ARCHIVE DESTINATION ${SUITESPARSE_LIBDIR} )
 endif ( )
 
 #-------------------------------------------------------------------------------
